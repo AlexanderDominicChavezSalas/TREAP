@@ -1,0 +1,191 @@
+public class Treap {
+private class TreapNode{
+		public int key,priority;
+		TreapNode Left,Right;
+		TreapNode(int value){
+			key = value;
+			priority=(int)(Math.random()*99+1);
+			Left=null;
+			Right=null;
+		}
+		TreapNode(int value,int priority){
+			key = value;
+			this.priority=priority;
+			Left=null;
+			Right=null;
+		}
+		public int getKey() {
+			return key;
+		}
+		public int getPriority() {
+			return priority;
+		}
+		public TreapNode getLeft() {
+			return Left;
+		}
+		public void setLeft(TreapNode left) {
+			Left = left;
+		}
+		public TreapNode getRight() {
+			return Right;
+		}
+		public void setRight(TreapNode right) {
+			Right = right;
+		}
+		public void show(){
+			System.out.println("valor "+getKey()+" prioridad "+getPriority());
+		}
+	}
+	public TreapNode root;
+	public boolean type;//tipo max-heap o min-heap
+	public Treap(){
+		root=null;
+		type=true;
+	}
+	public Treap(boolean type){
+		root=null;
+		this.type=type;
+	}
+	public TreapNode getRoot() {
+		return root;
+	}
+	public boolean isType() {
+		return type;
+	}
+	public TreapNode search(int value){
+		TreapNode res = search(root,value);
+		if (res == null)return null;
+		return res;
+	}
+	private TreapNode search(TreapNode node,int value){
+		if (node == null){
+			return null;
+		}else {
+			if (node.getKey()<value)return search(node.getRight(),value);
+			else if (node.getKey()>value)return search(node.getLeft(),value);
+			else return node;
+		}
+	}
+	public void insert1(int value){
+		root = insert1(root,value);
+	}
+	private TreapNode insert1(TreapNode node,int value){
+		if(node == null)return new TreapNode(value);
+		if(node.getKey()<value){
+			node.setRight(insert1(node.getRight(),value));
+			if(isType()==true){
+				if(node.getRight().getPriority()>node.getPriority())
+					node=leftRotation(node);
+			}else{
+				if(node.getRight().getPriority()<node.getPriority())
+					node=leftRotation(node);
+			}
+		}
+		if(node.getKey()>value){
+			node.setLeft(insert1(node.getLeft(),value));
+			if(isType()==true){
+				if(node.getLeft().getPriority()>node.getPriority())
+					node=rightRotation(node);
+			}else{
+				if(node.getLeft().getPriority()<node.getPriority())
+					node=rightRotation(node);
+			}
+		}
+		return node;
+	}
+  public void remove1(int value){
+		root=remove1(root,value);
+	}
+	private TreapNode remove1(TreapNode node,int value){
+		if(node==null)return node;
+		if(node.getKey()<value)node.setRight(remove1(node.getRight(),value));
+		else if(node.getKey()>value)node.setLeft(remove1(node.getLeft(),value));
+		else {
+			if(node.getLeft()!=null){
+				if(node.getRight()!=null){//caso que se tenga 2 hijos
+					if(isType()==true){
+						if(node.getLeft().getPriority()<node.getRight().getPriority()){
+							node=leftRotation(node);
+							node.setLeft(remove1(node.getLeft(),value));
+						}else{
+							node=rightRotation(node);
+							node.setRight(remove1(node.getRight(),value));
+						}
+					}else{
+						if(node.getLeft().getPriority()>node.getRight().getPriority()){
+							node=leftRotation(node);
+							node.setLeft(remove1(node.getLeft(),value));
+						}else{
+							node=rightRotation(node);
+							node.setRight(remove1(node.getRight(),value));
+						}
+					}
+				}else{//caso que solo se tenga un hijo izquierdo
+					TreapNode aux=node.getLeft();
+					node = null;
+					return aux;
+				}
+			}else {
+				//si solo tengo hijo derecho
+				if(node.getRight()!=null){
+					TreapNode aux=node.getRight();
+					node=null;
+					return aux;
+				}else{//si el nodo actual es hoja
+					node=null;
+					return null;
+				}
+			}
+		}
+		return node;
+	}
+	public void remove2(int value){
+		root=remove2(root,value);
+	}
+	private TreapNode remove2(TreapNode node,int value){
+		if(node==null)return null;
+		if(node.getKey()==value){
+			TreapNode aux=merge(node.getLeft(),node.getRight());
+			node=null;
+			return aux;
+		}
+		if(node.getKey()<value)node.setRight(remove2(node.getRight(),value));
+		else node.setLeft(remove2(node.getLeft(),value));
+		return node;
+	}
+	private TreapNode merge(TreapNode Left,TreapNode Right){
+		TreapNode node;
+		if(type==true){
+			if(Left==null||Right==null)node=(Left!=null ? Left:Right);
+			else if(Left.getPriority()<Right.getPriority()){
+				Right.setLeft(merge(Left,Right.getLeft()));
+				node=Right;
+			}else{
+				Left.setRight(merge(Left.getRight(),Right));
+				node=Left;
+			}
+		}else{
+			if(Left==null||Right==null)node=(Left!=null ? Left:Right);
+			else if(Left.getPriority()>Right.getPriority()){
+				Right.setLeft(merge(Left,Right.getLeft()));
+				node=Right;
+			}else{
+				Left.setRight(merge(Left.getRight(),Right));
+				node=Left;
+			}
+		}
+		return node;
+	}
+	private TreapNode rightRotation(TreapNode node){
+		TreapNode temp=node.getLeft();
+		node.setLeft(temp.getRight());
+		temp.setRight(node);
+		return temp;
+	}
+	private TreapNode leftRotation(TreapNode node){
+		TreapNode temp=node.getRight();
+		node.setRight(temp.getLeft());
+		temp.setLeft(node);
+		return temp;
+	}
+ }
